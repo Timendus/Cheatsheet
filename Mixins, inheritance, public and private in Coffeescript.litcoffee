@@ -1,16 +1,28 @@
-```coffeescript
-  # Using mixins (my own implementation)
-  # Enables kind of "multiple inheritance"
+Mixins, inheritance, public and private in Coffeescript
+=======================================================
 
+Mixins
+------
+
+Mixins allow multiple inheritance in a clean fashion in Coffeescript.
+We can build this ourselves with a little effort:
+
+```coffeescript
   class Mixin
 
     @mixin: (module) ->
       throw "Unknown module" unless module?
       @::[functionName] = functionImplementation for functionName, functionImplementation of module::
       @[functionName] = functionImplementation for functionName, functionImplementation of module
+```
 
+Now we can extend this `Mixin` class in our model classes, and we can use the
+`@mixin <class name>` method to mix in both instance and class methods from
+the given class.
 
+Let's define a few module classes to be mixed in later, with very little functionality:
 
+```coffeescript
   class ORM # Module
 
     save: -> console.log "Saving object #{@.name}"
@@ -19,16 +31,18 @@
     @find: (id) -> console.log "Finding object #{id}"
     @create: (attrs) -> console.log "Creating object with properties ", attrs
 
-
-
   class AnderDing # Module
 
     doeDingen: -> console.log "Dingen gedaan!"
+```
 
+Inheritance
+-----------
 
+In Coffeescript we can easily inherit from one parent class, for example, if we have
+a Person class that defines that a person has a name (in a clumsy manner):
 
-  # Defining the classes
-
+```coffeescript
   class Person extends Mixin
 
     # Mix in the ORM module
@@ -48,9 +62,20 @@
 
     getName: ->
       @name
+```
 
+Because we extend Mixin we can min in the ORM and AnderDing modules, so a person
+can be "persisted" by our ORM framework, and at the same time be an AnderDing.
 
+We can now inherint from Person in a class Student and all the methods from Person,
+ORM and AnderDing will be bequeathed to the Student.
 
+Public and Private (and Static)
+-------------------------------
+
+TODO
+
+```coffeescript
   class Student extends Person  # The inheritance gives our student a name
 
     # Public properties
@@ -105,10 +130,14 @@
       # Closure for loop returns an array
       student.getName() for student in @students when student._bsn? or without_bsn
 
+```
 
+Using the classes
+-----------------
 
-  # Using the classes
+TODO
 
+```coffeescript
   console.clear()
   show = (what,result...) ->
     console.log what, result...
