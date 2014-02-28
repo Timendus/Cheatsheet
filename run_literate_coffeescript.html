@@ -1,0 +1,36 @@
+<html>
+
+  <head>
+    <style>
+      #console {
+        border: 2px solid gray;
+        font-family: "Courier New", Courier, monospace;
+        padding: 20px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="console"></div>
+
+    <script type="text/javascript">
+      console = console || {};
+      console.log = function() {
+        var console = document.getElementById('console');
+        var i,l;
+        for( i = 0, l = arguments.length; i < l; i++ ) {
+          console.innerHTML += arguments[i] + " ";
+        }
+        console.innerHTML += "<br/>";
+      }
+
+      console.log("Hello world","amazing");
+    </script>
+
+    <script type="text/literate-coffeescript" src="https://www.github.com/Timendus/Cheatsheet/raw/master/Mixins%2C%20inheritance%2C%20public%20and%20private%20in%20Coffeescript.litcoffee"></script>
+
+    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.7.1/coffee-script.min.js"></script>
+
+  </body>
+
+</html>

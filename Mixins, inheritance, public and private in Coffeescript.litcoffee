@@ -1,8 +1,6 @@
 Mixins, inheritance, public and private in Coffeescript
 =======================================================
 
-This is a literate Coffeescript file, so it should be valid executable Coffeescript.
-
 Mixins
 ------
 
