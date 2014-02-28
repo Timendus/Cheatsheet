@@ -220,8 +220,8 @@ Using the classes
 -----------------
 
 The code below is there to show that the code above really does what I say it does :)
-Since this is a literate Coffeescript file, try running this file and check your browser
-console output.
+Since this is a literate Coffeescript file, try
+[running this file in your browser](http://vps.timendus.com/files/run_literate_coffeescript.php).
 
 ```coffeescript
 

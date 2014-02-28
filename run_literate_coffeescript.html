@@ -1,3 +1,10 @@
+<?php
+  if ( $_GET['coffee'] == "yesplease" ) {
+    header("Content-Type: text/javascript");
+    $coffee = file_get_contents("https://www.github.com/Timendus/Cheatsheet/raw/master/Mixins%2C%20inheritance%2C%20public%20and%20private%20in%20Coffeescript.litcoffee");
+    die($coffee);
+  }
+?>
 <html>
 
   <head>
@@ -5,32 +12,69 @@
       #console {
         border: 2px solid gray;
         font-family: "Courier New", Courier, monospace;
+        font-size: 13px;
         padding: 20px;
       }
+      .string { color: navy; }
+      .number { color: red; }
+      .object { color: green; }
+      .undefined { color: #888888; }
     </style>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="coffee-script.js"></script>
   </head>
 
   <body>
+    <h1>Coffeescript cheatsheet</h1>
+    <p>This page runs the literate Coffeescript for my <a href="https://github.com/Timendus/Cheatsheet/blob/master/Mixins%2C%20inheritance%2C%20public%20and%20private%20in%20Coffeescript.litcoffee">Coffeescript cheatsheet at Github</a>.</p>
     <div id="console"></div>
 
-    <script type="text/javascript">
-      console = console || {};
-      console.log = function() {
-        var console = document.getElementById('console');
-        var i,l;
-        for( i = 0, l = arguments.length; i < l; i++ ) {
-          console.innerHTML += arguments[i] + " ";
-        }
-        console.innerHTML += "<br/>";
-      }
+    <script type="text/coffeescript">
+      # Format objects for output
+      arrayDump = (array, spacing="", maxdepth=4) ->
+        return "--maximum depth exceeded--" if maxdepth is 0
+        buffer = ""
 
-      console.log("Hello world","amazing");
+        if array instanceof Array
+          buffer += "<span class='array'>[<br/>"
+          for item in array
+            myspacing = "#{spacing}&nbsp;&nbsp;"
+            buffer += "#{myspacing}#{arrayDump item, myspacing, maxdepth-1}<br/>"
+          buffer += "#{spacing}]</span>"
+
+        else if array instanceof Object
+          buffer += "<span class='object'>{<br/>"
+          for key,item of array
+            myspacing = "#{spacing}&nbsp;&nbsp;"
+            buffer += "#{myspacing}#{key} => #{arrayDump item, myspacing, maxdepth-1}<br/>"
+          buffer += "#{spacing}}</span>"
+
+        else
+          buffer += "<span class='#{typeof array}'>#{spacing}#{array}</span>"
+
+        buffer
+
+      # Redirect console.log output to the browser window please!
+      window.console = {} unless console?
+      window.console.log = ->
+        $('#console').append "#{arrayDump argument,"",2} " for argument in arguments
+        $('#console').append "<br/>";
     </script>
+    <script type="text/literate-coffeescript">
+How awesome
+===========
 
-    <script type="text/literate-coffeescript" src="https://www.github.com/Timendus/Cheatsheet/raw/master/Mixins%2C%20inheritance%2C%20public%20and%20private%20in%20Coffeescript.litcoffee"></script>
+```coffeescript
 
-    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.7.1/coffee-script.min.js"></script>
+      console.log "Literate Coffeescript working!"
+      console.log "Loading file from Github..."
 
+```
+
+Time to start!
+    </script>
+    <script type="text/literate-coffeescript" src="run_literate_coffeescript.php?coffee=yesplease&amp;ext=.litcoffee"></script>
+    
   </body>
 
 </html>
