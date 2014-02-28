@@ -8,12 +8,13 @@ Mixins allow multiple inheritance in a clean fashion in Coffeescript.
 We can build this ourselves with a little effort:
 
 ```coffeescript
-  class Mixin
 
-    @mixin: (module) ->
-      throw "Unknown module" unless module?
-      @::[functionName] = functionImplementation for functionName, functionImplementation of module::
-      @[functionName] = functionImplementation for functionName, functionImplementation of module
+    class Mixin
+      @mixin: (module) ->
+        throw "Unknown module" unless module?
+        @::[functionName] = functionImplementation for functionName, functionImplementation of module::
+        @[functionName] = functionImplementation for functionName, functionImplementation of module
+
 ```
 
 Now we can extend this `Mixin` class in our model classes, and we can use the
@@ -23,17 +24,16 @@ the given class.
 Let's define a few module classes to be mixed in later, with very little functionality:
 
 ```coffeescript
-  class ORM # Module
+    
+    class ORM # Module
+      save: -> console.log "Saving object #{@.name}"
+      delete: -> console.log "Deleting object #{@.name}"
+      @find: (id) -> console.log "Finding object #{id}"
+      @create: (attrs) -> console.log "Creating object with properties ", attrs
 
-    save: -> console.log "Saving object #{@.name}"
-    delete: -> console.log "Deleting object #{@.name}"
+    class AnderDing # Module
+      doeDingen: -> console.log "Dingen gedaan!"
 
-    @find: (id) -> console.log "Finding object #{id}"
-    @create: (attrs) -> console.log "Creating object with properties ", attrs
-
-  class AnderDing # Module
-
-    doeDingen: -> console.log "Dingen gedaan!"
 ```
 
 Inheritance
@@ -43,7 +43,9 @@ In Coffeescript we can easily inherit from one parent class. For example, if we 
 a Person class, we can make it inherit from the Mixin class we defined before:
 
 ```coffeescript
-  class Person extends Mixin
+
+    class Person extends Mixin
+
 ```
 
 Because we extend `Mixin` we can use the `@mixin <module name>` function defined in the
@@ -51,9 +53,11 @@ Mixin class. We use it to mix in the ORM and AnderDing modules, so we basically 
 multiple inheritance.
 
 ```coffeescript
-    # Mix in the modules we need
-    @mixin ORM
-    @mixin AnderDing
+
+      # Mix in the modules we need
+      @mixin ORM
+      @mixin AnderDing
+
 ```
 
 The mixed in modules make it so a person can be "persisted" by our ORM framework, and at
@@ -63,19 +67,21 @@ Let's finish the `Person` class with some very clumsy functions that define that
 has a name:
 
 ```coffeescript
-    constructor: (@name) -> # Implicitly set public property name
-      # Does nothing else
 
-    # These functions are merely for demonstation, as we can just do:
-    # person.name = 'new name'
-    # name = person.name
+      constructor: (@name) -> # Implicitly set public property name
+        # Does nothing else
 
-    setName: (value=null) ->
-      @name = value if value?
-      @ # Return "this" for method chaining
+      # These functions are merely for demonstation, as we can just do:
+      # person.name = 'new name'
+      # name = person.name
 
-    getName: ->
-      @name
+      setName: (value=null) ->
+        @name = value if value?
+        @ # Return "this" for method chaining
+
+      getName: ->
+        @name
+
 ```
 
 The method chaining allows us to do fancy things like `person.setName('John').save()`.
@@ -84,7 +90,9 @@ Expanding on this class, we can now inherit from `Person` in a class `Student` a
 all the methods from `Person`, `ORM` and `AnderDing` will be bequeathed to the `Student`.
 
 ```coffeescript
-  class Student extends Person
+
+    class Student extends Person
+
 ```
 
 Public and Private (and Static)
@@ -97,21 +105,22 @@ The difference however, is very subtle and easy to miss:
 
 ```coffeescript
 
-    # Public properties
+      # Public properties
 
-    id: null
+      id: null
 
-    # "Private" properties (by convention, can't really do better)
+      # "Private" properties (by convention, can't really do better)
 
-    _bsn: null
+      _bsn: null
 
-    # Public static properties
+      # Public static properties
 
-    @students: []
+      @students: []
 
-    # Private static properties (really private, not inherited)
+      # Private static properties (really private, not inherited)
 
-    numStudents = 0
+      numStudents = 0
+
 ```
 
 It's worth noting that private static propreties (on the class) are really private, while
@@ -134,40 +143,42 @@ really distinguish between the two). This makes it so we can have public methods
 static methods, private static methods, but no "real" private methods:
 
 ```coffeescript
-    # Public interface
 
-    constructor: (name, bsn=null) ->
-      super name
-      
-      @id = createStudentId numStudents
-      @_bsn = bsn
-      
-      # Public properties don't really need to be defined beforehand, but it's good style
-      @runtimeProperty = "another public property"
+      # Public interface
 
-      numStudents++
-      Student.students.push @
-      @_justDontUseThisFunctionOutsideOfStudentKThanxBye()
+      constructor: (name, bsn=null) ->
+        super name
+        
+        @id = createStudentId numStudents
+        @_bsn = bsn
+        
+        # Public properties don't really need to be defined beforehand, but it's good style
+        @runtimeProperty = "another public property"
 
-    numberOfStudents: ->
-      console.log "Called numberOfStudents on an object"
-      numStudents
+        numStudents++
+        Student.students.push @
+        @_justDontUseThisFunctionOutsideOfStudentKThanxBye()
 
-    # "Private" interface
+      numberOfStudents: ->
+        console.log "Called numberOfStudents on an object"
+        numStudents
 
-    _justDontUseThisFunctionOutsideOfStudentKThanxBye: ->
-      console.log "A student has enrolled!"
+      # "Private" interface
 
-    # Private static interface (not inherited, and can't be tested, so bad idea)
+      _justDontUseThisFunctionOutsideOfStudentKThanxBye: ->
+        console.log "A student has enrolled!"
 
-    createStudentId = (input) ->
-      5 * (input + 2)
+      # Private static interface (not inherited, and can't be tested, so bad idea)
 
-    # Public static interface (Student.someFunction())
+      createStudentId = (input) ->
+        5 * (input + 2)
 
-    @numberOfStudents: ->
-      console.log "Called numberOfStudents on the class"
-      numStudents
+      # Public static interface (Student.someFunction())
+
+      @numberOfStudents: ->
+        console.log "Called numberOfStudents on the class"
+        numStudents
+
 ```
 
 In closing, we're still dealing with Javascript under the hood, so it makes sense that we 
@@ -180,23 +191,29 @@ Why Coffeescript is cool, besides class definitions
 In Coffeescript, we can have default values for method parameters:
 
 ```coffeescript
-    @studentNames: (without_bsn=true) ->
+
+      @studentNames: (without_bsn=true) ->
+
 ```
 
 We can do insane things with for loops, conditions and boolean statements in semi-natural
 language:
 
 ```coffeescript
-      # Closure for loop returns an array
-      student.getName() for student in @students when student._bsn? or without_bsn
+
+        # Closure for loop returns an array
+        student.getName() for student in @students when student._bsn? or without_bsn
+
 ```
 
 Also, we can use splats (variable number of parameters) in method definitions and method
 invocations:
 
 ```coffeescript
-  show = (what,result...) ->
-    console.log what, result...
+
+    show = (what,result...) ->
+      console.log what, result...
+
 ```
 
 Using the classes
@@ -207,49 +224,51 @@ Since this is a literate Coffeescript file, try running this file and check your
 console output.
 
 ```coffeescript
-  console.clear()
 
-  tim = new Student("Tim")
-  john = new Student("John", "BSN25837656")
+    console.clear()
 
-  show "We have created two sensible objects, what's in them?",
-    tim, john
+    tim = new Student("Tim")
+    john = new Student("John", "BSN25837656")
 
-  show "We can access the public properties of the objects:",
-    tim.id, tim.name, tim.runtimeProperty
+    show "We have created two sensible objects, what's in them?",
+      tim, john
 
-  show "But we can't access private static properties:",
-    tim.numStudents, Student.numStudents
+    show "We can access the public properties of the objects:",
+      tim.id, tim.name, tim.runtimeProperty
 
-  show "We can't access private static functions:",
-    Student.createStudentId, tim.createStudentId
+    show "But we can't access private static properties:",
+      tim.numStudents, Student.numStudents
 
-  show "But we can unfortunately access private functions and properties, so we should honour the convention:",
-    john._bsn, tim._justDontUseThisFunctionOutsideOfStudentKThanxBye
+    show "We can't access private static functions:",
+      Student.createStudentId, tim.createStudentId
 
-  show "Properties can be set directly, in the constructor or in any other function"
+    show "But we can unfortunately access private functions and properties, so we should honour the convention:",
+      john._bsn, tim._justDontUseThisFunctionOutsideOfStudentKThanxBye
 
-  show "Output 'John Doe', not 'John':",
-    john.setName("John Doe").getName()
+    show "Properties can be set directly, in the constructor or in any other function"
 
-  john.name = "Johnny"
-  show "Output 'Johnny', not 'John Doe':",
-    john.getName()
+    show "Output 'John Doe', not 'John':",
+      john.setName("John Doe").getName()
 
-  show "We haven't touched the other object:",
-    tim.getName()
+    john.name = "Johnny"
+    show "Output 'Johnny', not 'John Doe':",
+      john.getName()
 
-  show "All objects share the private static properties, no matter how we access them:",
-    tim.numberOfStudents(), Student.numberOfStudents()
+    show "We haven't touched the other object:",
+      tim.getName()
 
-  show "We can do all kinds of fancy looping over arrays and objects:",
-    Student.studentNames(),
-    Student.studentNames false
+    show "All objects share the private static properties, no matter how we access them:",
+      tim.numberOfStudents(), Student.numberOfStudents()
 
-  show "We have access to the mixed in functions, which allows multiple inheritance:"
-  Student.find 5
-  Student.create {name:'steve'}
-  tim.save()
-  tim.delete()
-  tim.doeDingen()
+    show "We can do all kinds of fancy looping over arrays and objects:",
+      Student.studentNames(),
+      Student.studentNames false
+
+    show "We have access to the mixed in functions, which allows multiple inheritance:"
+    Student.find 5
+    Student.create {name:'steve'}
+    tim.save()
+    tim.delete()
+    tim.doeDingen()
+
 ```
