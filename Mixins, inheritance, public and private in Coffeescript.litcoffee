@@ -10,11 +10,11 @@ We can build this ourselves with a little effort:
 ```coffeescript
 
     class Mixin
+
       @mixin: (module) ->
         throw "Unknown module" unless module?
         @::[functionName] = functionImplementation for functionName, functionImplementation of module::
         @[functionName] = functionImplementation for functionName, functionImplementation of module
-
 ```
 
 Now we can extend this `Mixin` class in our model classes, and we can use the
@@ -26,14 +26,16 @@ Let's define a few module classes to be mixed in later, with very little functio
 ```coffeescript
     
     class ORM # Module
+
       save: -> console.log "Saving object #{@.name}"
       delete: -> console.log "Deleting object #{@.name}"
+    
       @find: (id) -> console.log "Finding object #{id}"
       @create: (attrs) -> console.log "Creating object with properties ", attrs
 
     class AnderDing # Module
+    
       doeDingen: -> console.log "Dingen gedaan!"
-
 ```
 
 Inheritance
@@ -45,7 +47,6 @@ a Person class, we can make it inherit from the Mixin class we defined before:
 ```coffeescript
 
     class Person extends Mixin
-
 ```
 
 Because we extend `Mixin` we can use the `@mixin <module name>` function defined in the
@@ -57,7 +58,6 @@ multiple inheritance.
       # Mix in the modules we need
       @mixin ORM
       @mixin AnderDing
-
 ```
 
 The mixed in modules make it so a person can be "persisted" by our ORM framework, and at
@@ -81,7 +81,6 @@ has a name:
 
       getName: ->
         @name
-
 ```
 
 The method chaining allows us to do fancy things like `person.setName('John').save()`.
@@ -92,7 +91,6 @@ all the methods from `Person`, `ORM` and `AnderDing` will be bequeathed to the `
 ```coffeescript
 
     class Student extends Person
-
 ```
 
 Public and Private (and Static)
@@ -120,7 +118,6 @@ The difference however, is very subtle and easy to miss:
       # Private static properties (really private, not inherited)
 
       numStudents = 0
-
 ```
 
 It's worth noting that private static propreties (on the class) are really private, while
@@ -178,7 +175,6 @@ static methods, private static methods, but no "real" private methods:
       @numberOfStudents: ->
         console.log "Called numberOfStudents on the class"
         numStudents
-
 ```
 
 In closing, we're still dealing with Javascript under the hood, so it makes sense that we 
@@ -193,7 +189,6 @@ In Coffeescript, we can have default values for method parameters:
 ```coffeescript
 
       @studentNames: (without_bsn=true) ->
-
 ```
 
 We can do insane things with for loops, conditions and boolean statements in semi-natural
@@ -203,7 +198,6 @@ language:
 
         # Closure for loop returns an array
         student.getName() for student in @students when student._bsn? or without_bsn
-
 ```
 
 Also, we can use splats (variable number of parameters) in method definitions and method
@@ -213,7 +207,6 @@ invocations:
 
     show = (what,result...) ->
       console.log what, result...
-
 ```
 
 Using the classes
@@ -270,5 +263,4 @@ Since this is a literate Coffeescript file, try
     tim.save()
     tim.delete()
     tim.doeDingen()
-
 ```
