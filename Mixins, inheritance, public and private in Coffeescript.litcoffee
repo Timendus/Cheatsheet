@@ -1,6 +1,8 @@
 Mixins, inheritance, public and private in Coffeescript
 =======================================================
 
+This is a literate Coffeescript file, so it should be valid executable Coffeescript.
+
 Mixins
 ------
 
@@ -51,7 +53,7 @@ Mixin class. We use it to mix in the ORM and AnderDing modules, so we basically 
 multiple inheritance.
 
 ```coffeescript
-    # Mix in the ORM module
+    # Mix in the modules we need
     @mixin ORM
     @mixin AnderDing
 ```
@@ -78,16 +80,24 @@ has a name:
       @name
 ```
 
+The method chaining allows us to do fancy things like `person.setName('John').save()`.
+
 Expanding on this class, we can now inherit from `Person` in a class `Student` and
 all the methods from `Person`, `ORM` and `AnderDing` will be bequeathed to the `Student`.
+
+```coffeescript
+  class Student extends Person
+```
 
 Public and Private (and Static)
 -------------------------------
 
-TODO
+### Properties
+
+In Coffeescript, we have to define public, private and static functions in different ways.
+The difference however, is very subtle and easy to miss:
 
 ```coffeescript
-  class Student extends Person  # The inheritance gives our student a name
 
     # Public properties
 
@@ -104,15 +114,39 @@ TODO
     # Private static properties (really private, not inherited)
 
     numStudents = 0
+```
 
+It's worth noting that private static propreties (on the class) are really private, while
+private properties (on the object) are always public. Private static properties are really
+just variables that are defined within the closure that defines the class, so function scoping
+keeps them private.
+
+We use the underscore convention to indicate that properties should not be used outside of
+the class definition.
+
+According to the Googling I did there it no better way to define private properties, and still
+have them be inherited properly. This limitation is the same in Javascript. I guess private
+properties haven't been implemented in Coffeescript to keep the inheritance magic in the
+generated Javascript to a bare minimum.
+
+### Methods
+
+We see the same problem in methods as we see in properties (after all, Javascript does not
+really distinguish between the two). This makes it so we can have public methods, public
+static methods, private static methods, but no "real" private methods:
+
+```coffeescript
     # Public interface
 
     constructor: (name, bsn=null) ->
       super name
+      
       @id = createStudentId numStudents
       @_bsn = bsn
-      # Properties don't really need to be defined beforehand, but it's good style
+      
+      # Public properties don't really need to be defined beforehand, but it's good style
       @runtimeProperty = "another public property"
+
       numStudents++
       Student.students.push @
       @_justDontUseThisFunctionOutsideOfStudentKThanxBye()
@@ -126,7 +160,7 @@ TODO
     _justDontUseThisFunctionOutsideOfStudentKThanxBye: ->
       console.log "A student has enrolled!"
 
-    # Private static interface (not inherited, can't be tested)
+    # Private static interface (not inherited, and can't be tested, so bad idea)
 
     createStudentId = (input) ->
       5 * (input + 2)
@@ -136,22 +170,46 @@ TODO
     @numberOfStudents: ->
       console.log "Called numberOfStudents on the class"
       numStudents
+```
 
+In closing, we're still dealing with Javascript under the hood, so it makes sense that we 
+don't really have private methods and properties. Also, having no private methods makes
+it real easy to write testable code, which is a Good Thing<sup>tm</sup>.
+
+Why Coffeescript is cool, besides class definitions
+---------------------------------------------------
+
+In Coffeescript, we can have default values for method parameters:
+
+```coffeescript
     @studentNames: (without_bsn=true) ->
+```
+
+We can do insane things with for loops, conditions and boolean statements in semi-natural
+language:
+
+```coffeescript
       # Closure for loop returns an array
       student.getName() for student in @students when student._bsn? or without_bsn
+```
 
+Also, we can use splats (variable number of parameters) in method definitions and method
+invocations:
+
+```coffeescript
+  show = (what,result...) ->
+    console.log what, result...
 ```
 
 Using the classes
 -----------------
 
-TODO
+The code below is there to show that the code above really does what I say it does :)
+Since this is a literate Coffeescript file, try running this file and check your browser
+console output.
 
 ```coffeescript
   console.clear()
-  show = (what,result...) ->
-    console.log what, result...
 
   tim = new Student("Tim")
   john = new Student("John", "BSN25837656")
