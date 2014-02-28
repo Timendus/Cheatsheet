@@ -33,9 +33,9 @@ Let's define a few module classes to be mixed in later, with very little functio
       @find: (id) -> console.log "Finding object #{id}"
       @create: (attrs) -> console.log "Creating object with properties ", attrs
 
-    class AnderDing # Module
+    class SomeOtherThing # Module
     
-      doeDingen: -> console.log "Dingen gedaan!"
+      doThings: -> console.log "Done things!"
 ```
 
 Inheritance
@@ -50,18 +50,18 @@ a Person class, we can make it inherit from the Mixin class we defined before:
 ```
 
 Because we extend `Mixin` we can use the `@mixin <module name>` function defined in the
-Mixin class. We use it to mix in the ORM and AnderDing modules, so we basically get
+Mixin class. We use it to mix in the ORM and SomeOtherThing modules, so we basically get
 multiple inheritance.
 
 ```coffeescript
 
       # Mix in the modules we need
       @mixin ORM
-      @mixin AnderDing
+      @mixin SomeOtherThing
 ```
 
 The mixed in modules make it so a person can be "persisted" by our ORM framework, and at
-the same time behave like an AnderDing.
+the same time behave like a `SomeOtherThing`.
 
 Let's finish the `Person` class with some very clumsy functions that define that a person
 has a name:
@@ -86,7 +86,7 @@ has a name:
 The method chaining allows us to do fancy things like `person.setName('John').save()`.
 
 Expanding on this class, we can now inherit from `Person` in a class `Student` and
-all the methods from `Person`, `ORM` and `AnderDing` will be bequeathed to the `Student`.
+all the methods from `Person`, `ORM` and `SomeOtherThing` will be bequeathed to the `Student`.
 
 ```coffeescript
 
@@ -262,5 +262,5 @@ Since this is a literate Coffeescript file, try
     Student.create {name:'steve'}
     tim.save()
     tim.delete()
-    tim.doeDingen()
+    tim.doThings()
 ```
