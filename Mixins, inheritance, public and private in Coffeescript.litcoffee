@@ -17,7 +17,7 @@ We can build this ourselves with a little effort:
 ```
 
 Now we can extend this `Mixin` class in our model classes, and we can use the
-`@mixin <class name>` method to mix in both instance and class methods from
+`@mixin <module name>` method to mix in both instance and class methods from
 the given class.
 
 Let's define a few module classes to be mixed in later, with very little functionality:
@@ -39,16 +39,30 @@ Let's define a few module classes to be mixed in later, with very little functio
 Inheritance
 -----------
 
-In Coffeescript we can easily inherit from one parent class, for example, if we have
-a Person class that defines that a person has a name (in a clumsy manner):
+In Coffeescript we can easily inherit from one parent class. For example, if we have
+a Person class, we can make it inherit from the Mixin class we defined before:
 
 ```coffeescript
   class Person extends Mixin
+```
 
+Because we extend `Mixin` we can use the `@mixin <module name>` function defined in the
+Mixin class. We use it to mix in the ORM and AnderDing modules, so we basically get
+multiple inheritance.
+
+```coffeescript
     # Mix in the ORM module
     @mixin ORM
     @mixin AnderDing
+```
 
+The mixed in modules make it so a person can be "persisted" by our ORM framework, and at
+the same time behave like an AnderDing.
+
+Let's finish the `Person` class with some very clumsy functions that define that a person
+has a name:
+
+```coffeescript
     constructor: (@name) -> # Implicitly set public property name
       # Does nothing else
 
@@ -64,11 +78,8 @@ a Person class that defines that a person has a name (in a clumsy manner):
       @name
 ```
 
-Because we extend Mixin we can min in the ORM and AnderDing modules, so a person
-can be "persisted" by our ORM framework, and at the same time be an AnderDing.
-
-We can now inherint from Person in a class Student and all the methods from Person,
-ORM and AnderDing will be bequeathed to the Student.
+Expanding on this class, we can now inherit from `Person` in a class `Student` and
+all the methods from `Person`, `ORM` and `AnderDing` will be bequeathed to the `Student`.
 
 Public and Private (and Static)
 -------------------------------
